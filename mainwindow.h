@@ -28,6 +28,9 @@ private:
     bool drawCanDragCover;//绘制可被拖拽的覆盖
     QPoint drag_pos;//用于窗口拖动，存储鼠标坐标
 
+    void saveConfig();
+    void loadConfig();
+
     //动画
     QPropertyAnimation *optSlideAnimation;
 

@@ -9,6 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     offset_x = 5;
     offset_y = 5;
+
+    loadConfig();//加载已存储配置（如果有）
+
+    ui->xoffsetSpinBox->setValue(offset_x);
+    ui->yoffsetSpinBox->setValue(offset_y);
+
     clickOnFrame = false;//是否点击到面板上
     drawCanDragCover = false;
     ui->showOptBoxBtn->setVisible(false);
@@ -46,6 +52,7 @@ void MainWindow::Update()
 
 MainWindow::~MainWindow()
 {
+    saveConfig();
     delete timer;
     delete ui;
 }
@@ -157,4 +164,33 @@ void MainWindow::on_canvasSizeBtn_clicked()
 
     ui->optionBox->move(QPoint(this->geometry().width() - ui->optionBox->geometry().width() - 15,15));
     ui->showOptBoxBtn->move(QPoint(this->geometry().width()- ui->showOptBoxBtn->geometry().width() - 15,0));
+}
+
+void MainWindow::saveConfig()
+{
+    QFile file(QCoreApplication::applicationDirPath() + "/config.dat");
+    file.open(QIODevice::WriteOnly);
+    QDataStream stream(&file);
+    stream << (quint32)0x78297000
+           << ui->xoffsetSpinBox->value()
+           << ui->yoffsetSpinBox->value();
+    file.close();
+}
+
+void MainWindow::loadConfig()
+{
+    QFile file(QCoreApplication::applicationDirPath() + "/config.dat");
+    if (!file.open(QIODevice::ReadOnly)) return;
+    QDataStream stream(&file);
+    quint32 magic;
+    stream >> magic;
+    if (magic == 0x78297000)
+    {
+        int dataInt = 0;
+        stream >> dataInt;
+        offset_x = dataInt;
+        stream >> dataInt;
+        offset_y = dataInt;
+    }
+    file.close();
 }
