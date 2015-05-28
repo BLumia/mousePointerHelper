@@ -24,7 +24,7 @@
  So.. where are you? lol
  
  to build this application, you should have Qt 5.3.1 or a newer version of Qt.
- You can use the source code to do anything since i use WTFPL for this app(not include the cursor icon). Of course, if you credit me, i will be happy.
+ You can use the source code to do anything since i use [WTFPL](http://www.wtfpl.net/about/) for this app(<b>not</b> include the cursor icon). Of course, if you credit me, i will be happy.
 
 ##Other info?
 
