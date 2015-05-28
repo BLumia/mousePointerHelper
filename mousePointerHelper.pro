@@ -21,3 +21,8 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     res.qrc
+
+OTHER_FILES += \
+    mousePointerHelper.rc
+
+RC_FILE = mousePointerHelper.rc
