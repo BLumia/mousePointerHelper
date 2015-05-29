@@ -24,10 +24,15 @@ private:
     QTimer * timer;
     int offset_x;
     int offset_y;
+    int canvas_height;
+    int canvas_width;
+    bool setMaximumOnStartup;//是否打开时就全屏
+    bool onChangingCanvasSize;//是否正在改变覆盖的大小，用以解决Maximum时触发ValueChanged的问题
     bool clickOnFrame;
     bool drawCanDragCover;//绘制可被拖拽的覆盖
     QPoint drag_pos;//用于窗口拖动，存储鼠标坐标
 
+    void setCanvasMaximum(bool arg1);
     void saveConfig();
     void loadConfig();
 
@@ -53,8 +58,13 @@ private slots:
 
     void on_canvasSizeBtn_clicked();
 
+    void on_canvasWSpinbox_valueChanged(int arg1);
+
+    void on_canvasHSpinbox_valueChanged(int arg1);
+
 protected:
     void paintEvent(QPaintEvent *);
+    void resizeEvent(QResizeEvent *);
 
 };
 

@@ -25,6 +25,13 @@
  
  to build this application, you should have Qt 5.3.1 or a newer version of Qt.
  You can use the source code to do anything since i use [WTFPL](http://www.wtfpl.net/about/) for this app(<b>not</b> include the cursor icon). Of course, if you credit me, i will be happy.
+ 
+##Update?
+
+ Yeah it actually have two new release version of this mini-app. they are:
+ 
+ 1. v1.0-release: added icon for exec-file.
+ 2. v1.1-release: allowed offset lower than 0, allowed setting canvas size.
 
 ##Other info?
 

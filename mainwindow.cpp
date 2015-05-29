@@ -9,11 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     offset_x = 5;
     offset_y = 5;
+    canvas_width = 500;
+    canvas_height = 390;
+    setMaximumOnStartup = false;
+    onChangingCanvasSize = false;
 
     loadConfig();//加载已存储配置（如果有）
-
-    ui->xoffsetSpinBox->setValue(offset_x);
-    ui->yoffsetSpinBox->setValue(offset_y);
 
     clickOnFrame = false;//是否点击到面板上
     drawCanDragCover = false;
@@ -31,6 +32,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer,SIGNAL(timeout()),this,SLOT(Update()));
 
     timer->start(27);
+
+    this->repaint();
+    if (setMaximumOnStartup) {
+        setCanvasMaximum(true);
+    } else {
+        ui->canvasHSpinbox->setValue(canvas_height);
+        ui->canvasWSpinbox->setValue(canvas_width);
+    }
+    ui->xoffsetSpinBox->setValue(offset_x);
+    ui->yoffsetSpinBox->setValue(offset_y);
 
 }
 
@@ -128,7 +139,7 @@ void MainWindow::doHideOptBox(bool doHide)
                           ui->optionBox->geometry().width(),
                           ui->optionBox->geometry().height());
         endRect = QRect(this->geometry().width() - ui->optionBox->geometry().width() - 15,
-                        0,
+                        15,
                         ui->optionBox->geometry().width(),
                         ui->optionBox->geometry().height());
     }
@@ -157,13 +168,9 @@ void MainWindow::on_showOptBoxBtn_clicked()
 void MainWindow::on_canvasSizeBtn_clicked()
 {
     if (!isMaximized()) {
-        QWidget::showMaximized();
-        this->move(0,0);
+        setCanvasMaximum(true);
     } else
-        QWidget::showNormal();
-
-    ui->optionBox->move(QPoint(this->geometry().width() - ui->optionBox->geometry().width() - 15,15));
-    ui->showOptBoxBtn->move(QPoint(this->geometry().width()- ui->showOptBoxBtn->geometry().width() - 15,0));
+        setCanvasMaximum(false);
 }
 
 void MainWindow::saveConfig()
@@ -173,7 +180,10 @@ void MainWindow::saveConfig()
     QDataStream stream(&file);
     stream << (quint32)0x78297000
            << ui->xoffsetSpinBox->value()
-           << ui->yoffsetSpinBox->value();
+           << ui->yoffsetSpinBox->value()
+           << isMaximized()
+           << ui->canvasWSpinbox->value()
+           << ui->canvasHSpinbox->value();
     file.close();
 }
 
@@ -191,6 +201,52 @@ void MainWindow::loadConfig()
         offset_x = dataInt;
         stream >> dataInt;
         offset_y = dataInt;
+        bool dataBool = false;
+        stream >> dataBool;
+        setMaximumOnStartup = dataBool;
+        stream >> dataInt;
+        canvas_width = dataInt;
+        stream >> dataInt;
+        canvas_height = dataInt;
     }
     file.close();
+}
+
+void MainWindow::setCanvasMaximum(bool arg1)
+{
+    onChangingCanvasSize = true;
+    if (arg1 && !isMaximized()) {
+        ui->canvasSizeBtn->setText("Normal");
+        QWidget::showMaximized();
+        //this->move(0,0);不能设否则会出问题，什么问题不妨去掉看看，原因不明
+    } else {
+        ui->canvasSizeBtn->setText("Maximum");
+        QWidget::showNormal();
+    }
+    ui->canvasWSpinbox->setValue(this->geometry().width());
+    ui->canvasHSpinbox->setValue(this->geometry().height());
+    this->repaint();
+    onChangingCanvasSize = false;
+}
+
+void MainWindow::on_canvasWSpinbox_valueChanged(int arg1)
+{
+    if (onChangingCanvasSize || isMaximized()) return;
+    this->resize( QSize(arg1,this->geometry().height()) );
+    this->repaint();
+}
+
+void MainWindow::on_canvasHSpinbox_valueChanged(int arg1)
+{
+    if (onChangingCanvasSize || isMaximized()) return;
+    this->resize( QSize( this->geometry().width(), arg1 ));
+    //this->setFixedSize();和setMaximumSize虽然能够设置大小，但之后就不能用调整窗口大小了。
+    this->repaint();
+}
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    ui->optionBox->move(QPoint(this->geometry().width() - ui->optionBox->geometry().width() - 15,15));
+    ui->showOptBoxBtn->move(QPoint(this->geometry().width()- ui->showOptBoxBtn->geometry().width() - 15,15));
+    this->repaint();
 }
